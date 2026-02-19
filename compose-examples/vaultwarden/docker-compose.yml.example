@@ -1,0 +1,13 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    volumes:
+      - /srv/storage/vaultwarden:/data
+    ports:
+      - '8081:80'
+    environment:
+      - ADMIN_TOKEN=!!!_GENERATE_A_NEW_TOKEN_AND_REPLACE_THIS_!!!
+      - SIGNUPS_ALLOWED=false            # Set to false after you sign up!
+      - DOMAIN=http://localhost:8081     # Update this if using a reverse proxy

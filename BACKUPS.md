@@ -1,47 +1,44 @@
 # DGS Homelab - Disaster Recovery Plan
 
-**Frequency:** Weekly (Manual Execution) + Major Changes  
-**Media:** Offline NVMe SSD via USB-C  
-**Air-Gap Policy:** The drive must be physically disconnected after backup and stored separately.
+**Frequency:** Weekly (Manual) + Major Changes  
+**Media:** Offline NVMe SSD (USB-C)  
+**Air-Gap Policy:** Disconnected & stored in backpack after sync.
+
+## 🛠️ Preparation
+```bash
+export BKP="/path/to/backup_drive"
+```
 
 ---
 
 ## 1. Vaultwarden (Password Manager)
 
 ### Backup Procedure (Offline Drive)
-1. Physically connect the NVMe backup drive to the DGS server.
-2. Ensure the drive is mounted (update `/path/to/backup_drive/` as needed).
-3. Execute the snapshot and sync:
+1. **Snap:** Create a consistent database snapshot.
+   ```bash
+   docker exec vaultwarden sqlite3 /data/db.sqlite3 ".backup '/data/db_manual_snap.sqlite3'"
+   ```
+2. **Sync:** 
+   ```bash
+   rsync -avz --delete /srv/storage/vaultwarden/ $BKP/vaultwarden/
+   ```
+3. **Verify:** `du -sh /srv/storage/vaultwarden/ $BKP/vaultwarden/`
 
-```bash
-# Create a safe SQLite snapshot before rsync to prevent corruption
-docker exec vaultwarden sqlite3 /data/db.sqlite3 ".backup '/data/db_manual_snap.sqlite3'"
-
-# Sync to offline media
-rsync -avz --delete /srv/storage/vaultwarden/ /path/to/backup_drive/vaultwarden/
-```
-
-### Interim Sync (LGS - No Air Gap)
-> [!WARNING]
-> **LACK OF AIR GAP:** This procedure utilizes an always-online device (LGS). It is vulnerable to network-based threats (ransomware). Protection is for hardware failure ONLY.
-
+### Interim Sync (LGS - Handheld)
 ```bash
 rsync -avz --delete -e ssh /srv/storage/vaultwarden/ joe@100.118.178.62:C:/Users/Joe/backups/vaultwarden/
 ```
 
 ---
 
-## 2. WeylandTavern (Blake)
+## 2. WeylandTavern
 
 ### Backup Procedure (Offline Drive)
-1. Physically connect the NVMe backup drive.
-2. Execute the sync command:
-
 ```bash
-rsync -avz --delete /srv/storage/weylandtavern/ /path/to/backup_drive/weylandtavern/
+rsync -avz --delete /srv/storage/weylandtavern/ $BKP/weylandtavern/
 ```
 
-### Interim Sync (LGS)
+### Interim Sync (LGS - Handheld)
 ```bash
 rsync -avz --delete -e ssh /srv/storage/weylandtavern/ joe@100.118.178.62:C:/Users/Joe/backups/weylandtavern/
 ```
@@ -49,24 +46,20 @@ rsync -avz --delete -e ssh /srv/storage/weylandtavern/ joe@100.118.178.62:C:/Use
 ---
 
 ## 3. Environment & Configs
-*Note: Do not commit raw .env files containing passwords to GitHub.*
+*Note: Do not commit raw .env files to GitHub.*
 
-- **Docker Configs:** Stored in `/srv/storage/docker-configs/`
-- **Secrets:** Keep a physical "Break Glass" copy of your Master Password and Encryption Keys.
+- **Docker Configs:** Backup `/srv/storage/docker-configs/` to `$BKP/configs/`
+- **Secrets:** Physical "Break Glass" copy of Master Password and 2FA Recovery Codes.
 
 ---
 
-## 🚨 Recovery Procedure (Total Loss Scenario)
+## 🚨 Recovery Procedure (Total Loss)
 
-1. **Hardware:** Provision a new Linux host with Docker & Docker-Compose installed.
-2. **Mount:** Connect the NVMe Backup Drive.
-3. **Restore Vaultwarden:**
+1. **Hardware:** Provision Linux host + Docker + Compose.
+2. **Restore Data:**
    ```bash
-   rsync -avz /path/to/backup_drive/vaultwarden/ /srv/storage/vaultwarden/
+   rsync -avz $BKP/vaultwarden/ /srv/storage/vaultwarden/
+   rsync -avz $BKP/weylandtavern/ /srv/storage/weylandtavern/
    ```
-4. **Restore WeylandTavern:**
-   ```bash
-   rsync -avz /path/to/backup_drive/weylandtavern/ /srv/storage/weylandtavern/
-   ```
-5. **Permissions:** Ensure proper ownership (`chown -R $USER:$USER /srv/storage/`).
-6. **Launch:** Run `docker-compose up -d` for each service.
+3. **Permissions:** `sudo chown -R $USER:$USER /srv/storage/`
+4. **Launch:** `docker-compose up -d`
