@@ -45,4 +45,8 @@ __pycache__/
 venv/
 
 # Docker
-docker-compose.override.yml
+docker-compose.override.yml/srv/docker/vaultwarden/docker-compose.yaml
+
+#Geyser
+docker/minecraft/geyser-config/key.pem
+docker/minecraft/geyser-config/cert.pem

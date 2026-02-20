@@ -1,0 +1,43 @@
+services:
+  papermc:
+    image: itzg/minecraft-server
+    container_name: papermc
+    user: "1000:1000"  # Force the container to use your UID/GID
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    networks:
+      - mc-net
+    volumes:
+      - /srv/storage/minecraft:/data
+      - /srv/storage/minecraft-plugins:/data/plugins
+    environment:
+      - EULA=TRUE
+      - TYPE=PAPER
+      - MEMORY=4G
+      - SPIGET_PLUGINS=LuckPerms,GriefPrevention,Floodgate
+       # Add this line to force the download from the direct source
+      - PLUGINS=https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+    ports:
+      - "25565:25565" # Java Ingress
+
+  geyser:
+    build: .
+    container_name: geyser-proxy
+    restart: unless-stopped
+    networks:
+      - mc-net
+    depends_on:
+      - papermc
+    ports:
+      - "19132:19132/udp" # Bedrock Ingress
+    environment:
+      - GEYSER_REMOTE_ADDRESS=papermc
+      - GEYSER_REMOTE_PORT=25565
+      - GEYSER_AUTH_TYPE=floodgate
+    volumes:
+      - /srv/docker/minecraft/geyser-config:/app/config
+
+networks:
+  mc-net:
+    driver: bridge
