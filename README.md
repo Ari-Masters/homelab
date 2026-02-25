@@ -1,1 +1,1 @@
-# DGS Homelab Documentation
+# Stratus-Hermes Homelab Documentation
