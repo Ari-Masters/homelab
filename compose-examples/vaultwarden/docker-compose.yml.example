@@ -9,5 +9,5 @@ services:
       - '8081:80'
     environment:
       - ADMIN_TOKEN=!!!_GENERATE_A_NEW_TOKEN_AND_REPLACE_THIS_!!!
-      - SIGNUPS_ALLOWED=false            # Set to false after you sign up!
+      - SIGNUPS_ALLOWED=true            # Set to false after you sign up!
       - DOMAIN=http://localhost:8081     # Update this if using a reverse proxy

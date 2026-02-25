@@ -1,0 +1,20 @@
+services:
+  foundry:
+    image: felddy/foundryvtt:release  # Community container, more actively maintained than official
+    container_name: foundry
+    hostname: foundry-server
+    restart: unless-stopped
+    init: true                        # Ensures proper signal propagation to child processes
+    stop_grace_period: 30s            # Gives Foundry time to clean up before SIGKILL
+    volumes:
+      - /srv/storage/foundry/data:/data                        # Persistent data: worlds, modules, Config/
+      - /srv/storage/foundry/install:/home/node/foundryvtt     # Persistent install: skips re-extract on restart (WIP - not yet working)
+    ports:
+      - "30000:30000"
+    environment:
+      CONTAINER_UID: 1000             # Run as host user to avoid permission issues
+      CONTAINER_GID: 1000
+      FOUNDRY_USERNAME: "your_foundry_email"      # foundryvtt.com credentials for license auth
+      FOUNDRY_PASSWORD: "your_foundry_password"
+      FOUNDRY_ADMIN_KEY: "your_admin_password"    # Sets Foundry admin password on first boot
+      CONTAINER_PRESERVE_CONFIG: "true"           # CRITICAL: prevents entrypoint from overwriting options.json and admin.txt on every restart
