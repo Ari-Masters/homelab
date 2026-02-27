@@ -35,37 +35,15 @@ As a **Stratus-Hermes** class system, this node serves as the baseline infrastru
 
 ### Active Services
 
-#### 🗝️ Vaultwarden (Secret Management)
-Replaces: *LastPass / 1Password / Bitwarden Cloud*
-``yaml
-services:
-  vaultwarden:
-    image: vaultwarden/server:latest
-    container_name: vaultwarden
-    volumes:
-      - /srv/storage/vaultwarden:/data
-    ports:
-      - '8081:80'
-    environment:
-      - SIGNUPS_ALLOWED=false
-      - DOMAIN=http://localhost:8081
-``
+| Service | Access Link | Host Port | Status |
+| :--- | :--- | :--- | :--- |
+| ![Foundry](https://img.shields.io) | `https://stratus-hermes.ts.net:30000` | `30000` | Game Server |
+| ![Vaultwarden](https://img.shields.io) | `https://stratus-hermes.ts.net:8081` | `8081` | Passwords |
+| ![Portainer](https://img.shields.io) | `https://stratus-hermes.ts.net:9443` | `9443` | Management |
+| ![UniFi](https://img.shields.io) | `https://stratus-hermes.ts.net:8443` | `8443` | Networking |
+| ![Minecraft](https://img.shields.io) | `https://stratus-hermes.ts.net:25565` | `25565` | PaperMC (Java) |
+| ![Geyser](https://img.shields.io) | `https://stratus-hermes.ts.net:19132` | `19132` | Bedrock Bridge |
 
-#### 🎲 Foundry VTT (Tabletop Hosting)
-Replaces: *Roll20 / Forge VTT*
-``yaml
-services:
-  foundry:
-    image: felddy/foundryvtt:release
-    container_name: foundry
-    volumes:
-      - /srv/storage/foundry/data:/data
-      - /srv/storage/foundry/install:/home/node/foundryvtt
-    environment:
-      - CONTAINER_PRESERVE_CONFIG: "true"
-      - CONTAINER_UID: 1000
-      - CONTAINER_GID: 1000
-``
 
 ---
 
