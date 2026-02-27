@@ -1,4 +1,4 @@
-# DGS Homelab - Disaster Recovery Plan
+# Stratus-Hermes Homelab - Disaster Recovery Plan
 
 **Frequency:** Weekly (Manual) + Major Changes  
 **Media:** Offline NVMe SSD (USB-C)  
