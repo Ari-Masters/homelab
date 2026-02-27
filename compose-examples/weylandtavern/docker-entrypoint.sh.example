@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+
+cd /app
+
+# --- THE FIX FOR CODE 128 ---
+# Tell Git that this directory is safe even if ownership looks "dubious" to Docker
+git config --global --add safe.directory /app
+
+echo "--- CHECKING FOR UPDATES ---"
+if [ -d ".git" ]; then
+    git fetch origin > /dev/null 2>&1
+    git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+    echo "Update complete. Current: $(git rev-parse --short HEAD)"
+fi
+
+cd SillyTavern
+
+echo "--- SYNCING & PATCHING DEPENDENCIES ---"
+npm i --no-audit --no-fund --loglevel=error --omit=dev
+npm audit fix --only=prod || echo "Skipping complex audits..."
+
+echo "--- UPDATING CHARACTERS ---"
+node chardl/character-downloader.js -u
+
+echo "--- LAUNCHING WEYLAND TAVERN ---"
+exec node --max-old-space-size=3072 server.js --listen true --listen-host 0.0.0.0 --listen-port 8000 "$@"

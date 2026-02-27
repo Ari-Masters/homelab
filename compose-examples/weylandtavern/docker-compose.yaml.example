@@ -1,0 +1,14 @@
+services:
+  weylandtavern:
+    build: .
+    container_name: weylandtavern
+    user: "1000:1000"
+    restart: unless-stopped
+    environment:
+      - DOMAIN=https://stratus-hermes.tail0baee1.ts.net
+      - NODE_ENV=production
+    ports:
+      - "8005:8000"
+    volumes:
+      # Map the actual app files from your storage directory
+      - /srv/storage/weylandtavern:/app
